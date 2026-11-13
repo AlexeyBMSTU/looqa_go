@@ -47,6 +47,15 @@ services:
       db:
         condition: service_healthy
 
+  swagger:
+    image: swaggerapi/swagger-ui
+    environment:
+      SWAGGER_JSON: /spec/openapi.yaml
+    volumes:
+      - ./openapi.yaml:/spec/openapi.yaml:ro
+    ports:
+      - "${PORT_SWAGGER}:8080"
+
   # Postgres — хранилище сервисов (таблицы User/Comment/Poster).
   # Схема и адаптация таблиц — в migrations/ (применение: make migrate).
   db:

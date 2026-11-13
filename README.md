@@ -58,8 +58,11 @@ DB_URI=postgres://user:pass@localhost:9090/mydb make run-user
 Спецификация всех ручек — `openapi.yaml` в корне (OpenAPI 3.0.3):
 12 операций трёх сервисов, сгруппированы по тегам `comment`/`user`/`poster`.
 У каждого пути указан свой базовый URL (порт сервиса), поэтому импорт
-в Postman/Bruno/Swagger UI работает сразу. Ручками тоже можно проверять:
-например, в VS Code — плагин OpenAPI Preview.
+в Postman/Bruno работает сразу.
+
+```sh
+make up   # затем откройте http://localhost:5051
+```
 
 ## Линтеры и pre-commit
 
