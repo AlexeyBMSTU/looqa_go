@@ -25,11 +25,16 @@ make run-user      # http://localhost:8081
 make run-poster    # http://localhost:8082
 ```
 
-В Docker (3 контейнера сервисов + postgres):
+В Docker (сервисы + postgres + pgAdmin):
 
 ```sh
 make up            # или docker compose up --build
 ```
+
+pgAdmin — веб-интерфейс для postgres: http://localhost:5050
+(логин/пароль веб-интерфейса — `PGADMIN_DEFAULT_*` из `.env`).
+Внутри pgAdmin сервер БД добавляйте с host=`db`, port=`5432` —
+это внутренняя сеть compose, а не localhost.
 
 ## Линтеры и pre-commit
 
