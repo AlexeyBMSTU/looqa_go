@@ -9,13 +9,21 @@ import (
 	commenthandler "looqa/internal/handler/comment_handler"
 	commentrepository "looqa/internal/repository/comment_repository"
 	commentservice "looqa/internal/service/comment_service"
+	"looqa/internal/storage"
 	"net/http"
 	"time"
 )
 
 func StartCommentService(ctx context.Context) error {
 	cfg := config.LoadConfigCommentService()
-	repo := commentrepository.NewInMemoryRepository()
+
+	pool, err := storage.NewPool(ctx, cfg.DBUri)
+	if err != nil {
+		return fmt.Errorf("comment service: %w", err)
+	}
+	defer pool.Close()
+
+	repo := commentrepository.NewPostgresRepository(pool)
 	svc := commentservice.NewService(repo)
 	h := commenthandler.NewHandler(svc, cfg.LevelInfo)
 

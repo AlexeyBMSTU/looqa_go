@@ -1,15 +1,19 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Poster struct {
 	Id            uuid.UUID `json:"id"`
 	Label         string    `json:"name"`
 	Text          string    `json:"text"`
-	Author        User      `json:"author"`
+	AuthorID      uuid.UUID `json:"author_id"`
 	CommentsCount int64     `json:"comments_count"`
 	LikesCount    int64     `json:"likes_count"`
-	PublicationAt string    `json:"publication_at"`
+	PublicationAt time.Time `json:"publication_at"`
 }
 
 type User struct {
@@ -21,6 +25,6 @@ type User struct {
 
 type Comment struct {
 	Id         uuid.UUID `json:"id"`
-	Author     User      `json:"author"`
+	AuthorID   uuid.UUID `json:"author_id"`
 	LikesCount int64     `json:"likes_count"`
 }

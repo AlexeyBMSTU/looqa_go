@@ -9,13 +9,21 @@ import (
 	posterhandler "looqa/internal/handler/poster_handler"
 	posterrepository "looqa/internal/repository/poster_repository"
 	posterservice "looqa/internal/service/poster_service"
+	"looqa/internal/storage"
 	"net/http"
 	"time"
 )
 
 func StartPosterService(ctx context.Context) error {
 	cfg := config.LoadConfigPosterService()
-	repo := posterrepository.NewInMemoryRepository()
+
+	pool, err := storage.NewPool(ctx, cfg.DBUri)
+	if err != nil {
+		return fmt.Errorf("poster service: %w", err)
+	}
+	defer pool.Close()
+
+	repo := posterrepository.NewPostgresRepository(pool)
 	svc := posterservice.NewService(repo)
 	h := posterhandler.NewHandler(svc, cfg.LevelInfo)
 

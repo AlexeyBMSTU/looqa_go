@@ -55,7 +55,7 @@ func (h *Handler) GetUserAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	uuid, error := uuid.Parse(id)
 	if error != nil {
 		slog.Error("get user by id error parse user", "msg", error, "requestID", utils.GetRequestID(r))
@@ -98,7 +98,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	uuid, error := uuid.Parse(id)
 	if error != nil {
 		slog.Error("delete user err parse id", "msg", error, "requestID", utils.GetRequestID(r))

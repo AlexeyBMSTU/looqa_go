@@ -1,0 +1,406 @@
+openapi: 3.0.3
+
+info:
+  title: looqa API
+  version: 1.0.0
+  description: |
+    API микросервисов looqa — три независимых сервиса, каждый на своём порту:
+
+    | Сервис | База | Что делает |
+    |---|---|---|
+    | comment | `http://localhost:8080` | комментарии |
+    | user | `http://localhost:8081` | пользователи |
+    | poster | `http://localhost:8082` | посты |
+
+    Порты по умолчанию, настраиваются в `.env` (`PORT_COMMENT_SERVICE`,
+    `PORT_USER_SERVICE`, `PORT_POSTER_SERVICE`).
+
+    У каждого пути задан собственный `servers` — базовый URL его сервиса,
+    поэтому запросы из Swagger UI / Postman уходят в нужный порт.
+
+    Хранилище — postgres (таблицы `User`, `Comment`, `Poster`).
+    `author_id` комментариев и постов ссылается на существующего
+    пользователя (FK): при удалении пользователя его комментарии
+    и посты удаляются каскадом.
+
+tags:
+  - name: comment
+    description: Сервис комментариев (порт 8080)
+  - name: user
+    description: Сервис пользователей (порт 8081)
+  - name: poster
+    description: Сервис постов (порт 8082)
+
+paths:
+  # ----------------------------------------------------------------- comment
+  /comments:
+    servers:
+      - url: http://localhost:8080
+    get:
+      tags: [comment]
+      operationId: getCommentAll
+      summary: Список всех комментариев
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [comment]
+      operationId: createComment
+      summary: Создать комментарий
+      description: |
+        `author_id` должен ссылаться на существующего пользователя —
+        иначе 400 (нарушение внешнего ключа).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+            example:
+              id: 9b2f6a1e-4c3d-4e5f-8a90-1a2b3c4d5e6f
+              author_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+              likes_count: 5
+      responses:
+        '200':
+          description: Создан (тело ответа — null)
+          content:
+            application/json:
+              schema:
+                nullable: true
+        '400':
+          description: Некорректный JSON, id уже занят или author_id не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /comments/{id}:
+    servers:
+      - url: http://localhost:8080
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [comment]
+      operationId: getCommentById
+      summary: Комментарий по id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [comment]
+      operationId: deleteComment
+      summary: Удалить комментарий
+      responses:
+        '204':
+          description: Удалён (тела нет)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # -------------------------------------------------------------------- user
+  /users:
+    servers:
+      - url: http://localhost:8081
+    get:
+      tags: [user]
+      operationId: getUserAll
+      summary: Список всех пользователей
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [user]
+      operationId: createUser
+      summary: Создать пользователя
+      description: |
+        `id` лучше передавать свой (сгенерированный UUID): без него
+        создастся запись с нулевым UUID, и повторный такой POST
+        закончится конфликтом.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            example:
+              id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+              first_name: Ivan
+              last_name: Petrov
+              avatar_url: https://example.com/avatar.png
+      responses:
+        '200':
+          description: Создан (тело ответа — null)
+          content:
+            application/json:
+              schema:
+                nullable: true
+        '400':
+          description: Некорректный JSON или id уже занят
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users/{id}:
+    servers:
+      - url: http://localhost:8081
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [user]
+      operationId: getUserById
+      summary: Пользователь по id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [user]
+      operationId: deleteUser
+      summary: Удалить пользователя (каскадом удалятся его посты и комментарии)
+      responses:
+        '204':
+          description: Удалён (тела нет)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ------------------------------------------------------------------ poster
+  /posters:
+    servers:
+      - url: http://localhost:8082
+    get:
+      tags: [poster]
+      operationId: getPosterAll
+      summary: Список всех постов
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Poster'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [poster]
+      operationId: createPoster
+      summary: Создать пост
+      description: |
+        `author_id` должен ссылаться на существующего пользователя —
+        иначе 400 (нарушение внешнего ключа). `publication_at` можно
+        не передавать — подставится текущее время.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poster'
+            example:
+              id: 5f0d2a3b-9c8e-4d7a-b1f2-6e3d5c7b9a01
+              name: Первый пост
+              text: Текст поста
+              author_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+              comments_count: 0
+              likes_count: 0
+      responses:
+        '200':
+          description: Создан (тело ответа — null)
+          content:
+            application/json:
+              schema:
+                nullable: true
+        '400':
+          description: Некорректный JSON, id уже занят или author_id не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /posters/{id}:
+    servers:
+      - url: http://localhost:8082
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [poster]
+      operationId: getPosterById
+      summary: Пост по id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poster'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [poster]
+      operationId: deletePoster
+      summary: Удалить пост
+      responses:
+        '204':
+          description: Удалён (тела нет)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      description: UUID записи
+      schema:
+        type: string
+        format: uuid
+      example: 9b2f6a1e-4c3d-4e5f-8a90-1a2b3c4d5e6f
+
+  responses:
+    BadRequest:
+      description: Некорректный id (не UUID) или запись не найдена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Внутренняя ошибка сервиса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+      example:
+        id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        first_name: Ivan
+        last_name: Petrov
+        avatar_url: https://example.com/avatar.png
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        author_id:
+          type: string
+          format: uuid
+          description: UUID существующего пользователя (FK на User)
+        likes_count:
+          type: integer
+          format: int64
+      example:
+        id: 9b2f6a1e-4c3d-4e5f-8a90-1a2b3c4d5e6f
+        author_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        likes_count: 5
+
+    Poster:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Заголовок поста
+        text:
+          type: string
+        author_id:
+          type: string
+          format: uuid
+          description: UUID существующего пользователя (FK на User)
+        comments_count:
+          type: integer
+          format: int64
+        likes_count:
+          type: integer
+          format: int64
+        publication_at:
+          type: string
+          format: date-time
+          description: При создании можно не передавать — подставится текущее время
+      example:
+        id: 5f0d2a3b-9c8e-4d7a-b1f2-6e3d5c7b9a01
+        name: Первый пост
+        text: Текст поста
+        author_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        comments_count: 0
+        likes_count: 0
+        publication_at: '2026-11-13T12:00:00Z'
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      example:
+        code: 400
+        message: bad request

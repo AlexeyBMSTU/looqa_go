@@ -36,6 +36,31 @@ pgAdmin — веб-интерфейс для postgres: http://localhost:5050
 Внутри pgAdmin сервер БД добавляйте с host=`db`, port=`5432` —
 это внутренняя сеть compose, а не localhost.
 
+## Хранилище
+
+В docker сервисы пишут в postgres: строки подключения собираются в
+`compose.yaml` из `POSTGRES_*` (хост `db:5432`). Схема — таблицы
+`User`/`Comment`/`Poster`. Миграции лежат в `migrations/*.sql` и применяются
+командой `make migrate`: каждый файл — одной транзакцией, журнал применённых
+ведётся в таблице `schema_migrations`. Новые миграции добавляйте файлами
+`002_имя.sql`, `003_имя.sql` и т.д. — р аннер подхватит их автоматически.
+
+Локально без docker (`make run-*`) переменная `DB_URI` не задана, и сервисы
+работают на in-memory хранилище (данные живут до перезапуска процесса).
+Запустить локально с postgres:
+
+```sh
+DB_URI=postgres://user:pass@localhost:9090/mydb make run-user
+```
+
+## API (OpenAPI)
+
+Спецификация всех ручек — `openapi.yaml` в корне (OpenAPI 3.0.3):
+12 операций трёх сервисов, сгруппированы по тегам `comment`/`user`/`poster`.
+У каждого пути указан свой базовый URL (порт сервиса), поэтому импорт
+в Postman/Bruno/Swagger UI работает сразу. Ручками тоже можно проверять:
+например, в VS Code — плагин OpenAPI Preview.
+
 ## Линтеры и pre-commit
 
 Перед каждым коммитом прогоняются `go vet ./...` и `golangci-lint run`

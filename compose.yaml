@@ -6,8 +6,16 @@ services:
         SERVICE: comment
     env_file:
       - .env
+    environment:
+      # Внутри сети compose база доступна как db:5432.
+      # Локально (make run-*) переменная не задана — сервис работает
+      # на in-memory хранилище.
+      DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "${PORT_COMMENT_SERVICE}:${PORT_COMMENT_SERVICE}"
+    depends_on:
+      db:
+        condition: service_healthy
 
   poster:
     build:
@@ -16,8 +24,13 @@ services:
         SERVICE: poster
     env_file:
       - .env
+    environment:
+      DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "${PORT_POSTER_SERVICE}:${PORT_POSTER_SERVICE}"
+    depends_on:
+      db:
+        condition: service_healthy
 
   user:
     build:
@@ -26,11 +39,16 @@ services:
         SERVICE: user
     env_file:
       - .env
+    environment:
+      DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "${PORT_USER_SERVICE}:${PORT_USER_SERVICE}"
+    depends_on:
+      db:
+        condition: service_healthy
 
-  # Сервисы пока используют in-memory хранилища;
-  # postgres оставлен под подключение БД в будущем.
+  # Postgres — хранилище сервисов (таблицы User/Comment/Poster).
+  # Схема и адаптация таблиц — в migrations/ (применение: make migrate).
   db:
     image: postgres:15
     env_file:

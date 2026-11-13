@@ -9,13 +9,21 @@ import (
 	userhandler "looqa/internal/handler/user_handler"
 	userrepository "looqa/internal/repository/user_repository"
 	userservice "looqa/internal/service/user_service"
+	"looqa/internal/storage"
 	"net/http"
 	"time"
 )
 
 func StartUserService(ctx context.Context) error {
 	cfg := config.LoadConfigUserService()
-	repo := userrepository.NewInMemoryRepository()
+
+	pool, err := storage.NewPool(ctx, cfg.DBUri)
+	if err != nil {
+		return fmt.Errorf("user service: %w", err)
+	}
+	defer pool.Close()
+
+	repo := userrepository.NewPostgresRepository(pool)
 	svc := userservice.NewService(repo)
 	h := userhandler.NewHandler(svc, cfg.LevelInfo)
 

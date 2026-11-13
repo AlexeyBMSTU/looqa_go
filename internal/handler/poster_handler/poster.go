@@ -55,7 +55,7 @@ func (h *Handler) GetPosterAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetPosterByID(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	uuid, error := uuid.Parse(id)
 	if error != nil {
 		slog.Error("get poster by id error parse poster", "msg", error, "requestID", utils.GetRequestID(r))
@@ -98,7 +98,7 @@ func (h *Handler) CreatePoster(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeletePoster(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	uuid, error := uuid.Parse(id)
 	if error != nil {
 		slog.Error("delete poster err parse id", "msg", error, "requestID", utils.GetRequestID(r))

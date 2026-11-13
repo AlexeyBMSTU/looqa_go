@@ -17,6 +17,7 @@ func init() {
 type Config struct {
 	Port      string
 	LevelInfo slog.Leveler
+	DBUri     string
 }
 
 func getEnv(key, defaultV string) string {
@@ -37,29 +38,35 @@ func parseLevel(s string) slog.Level {
 func LoadConfigCommentService() Config {
 	port := getEnv("PORT_COMMENT_SERVICE", DEFAULT_PORT_COMMENT_SERVICE)
 	levelStr := getEnv("LEVEL_INFO_COMMENT_SERVICE", DEFAULT_LEVEL_INFO_COMMENT_SERVICE)
+	dbUri := getEnv("DB_URI", "")
 
 	return Config{
 		Port:      port,
 		LevelInfo: parseLevel(levelStr),
+		DBUri:     dbUri,
 	}
 }
 
 func LoadConfigPosterService() Config {
 	port := getEnv("PORT_POSTER_SERVICE", DEFAULT_PORT_POSTER_SERVICE)
 	levelStr := getEnv("LEVEL_INFO_POSTER_SERVICE", DEFAULT_LEVEL_INFO_POSTER_SERVICE)
+	dbUri := getEnv("DB_URI", "")
 
 	return Config{
 		Port:      port,
 		LevelInfo: parseLevel(levelStr),
+		DBUri:     dbUri,
 	}
 }
 
 func LoadConfigUserService() Config {
 	port := getEnv("PORT_USER_SERVICE", DEFAULT_PORT_USER_SERVICE)
 	levelStr := getEnv("LEVEL_INFO_USER_SERVICE", DEFAULT_LEVEL_INFO_USER_SERVICE)
+	dbUri := getEnv("DB_URI", "")
 
 	return Config{
 		Port:      port,
 		LevelInfo: parseLevel(levelStr),
+		DBUri:     dbUri,
 	}
 }
