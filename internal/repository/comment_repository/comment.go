@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 func (t *InMemoryRepository) GetCommentAll() ([]model.Comment, error) {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()

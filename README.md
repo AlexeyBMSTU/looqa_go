@@ -31,3 +31,18 @@ make run-poster    # http://localhost:8082
 make up            # или docker compose up --build
 ```
 
+## Линтеры и pre-commit
+
+Перед каждым коммитом прогоняются `go vet ./...` и `golangci-lint run`
+(конфиг — `.golangci.yml`: стандартный набор линтеров + gofmt).
+
+Активация хука (один раз после клона):
+
+```sh
+make hooks   # git config core.hooksPath .githooks
+```
+
+Ручной прогон: `make lint`. Автоформатирование: `make fmt`.
+Нужен установленный [golangci-lint](https://golangci-lint.run):
+`brew install golangci-lint`.
+

@@ -52,7 +52,7 @@ func StartUserService(ctx context.Context) error {
 		slog.Info("Сервис юзеров останавливается...")
 		shutdownCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
 		defer cancel()
-		
+
 		return srv.Shutdown(shutdownCtx)
 	}
 }

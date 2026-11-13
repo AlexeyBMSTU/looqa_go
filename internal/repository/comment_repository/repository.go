@@ -8,8 +8,8 @@ import (
 )
 
 type InMemoryRepository struct {
-	data map[uuid.UUID]model.Comment
-	mutex        sync.RWMutex
+	data  map[uuid.UUID]model.Comment
+	mutex sync.RWMutex
 }
 
 func NewInMemoryRepository() *InMemoryRepository {

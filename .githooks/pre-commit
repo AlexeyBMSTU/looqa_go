@@ -1,0 +1,19 @@
+#!/bin/sh
+# Прекоммит-хук: не даёт закоммитить код, не прошедший линтеры.
+# Активация (один раз после клона репозитория): make hooks
+# (устанавливает git config core.hooksPath .githooks)
+
+set -e
+
+echo "→ go vet ./..."
+go vet ./...
+
+if ! command -v golangci-lint >/dev/null 2>&1; then
+    echo "✗ golangci-lint не установлен (brew install golangci-lint), коммит заблокирован" >&2
+    exit 1
+fi
+
+echo "→ golangci-lint run"
+golangci-lint run
+
+echo "✓ линтеры пройдены"

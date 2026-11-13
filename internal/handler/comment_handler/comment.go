@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 type Service interface {
 	GetCommentAll() ([]model.Comment, error)
 	GetCommentByID(id uuid.UUID) (model.Comment, error)

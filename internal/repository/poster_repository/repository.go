@@ -9,11 +9,11 @@ import (
 
 type InMemoryRepository struct {
 	data  map[uuid.UUID]model.Poster
-	mutex        sync.RWMutex
+	mutex sync.RWMutex
 }
 
 func NewInMemoryRepository() *InMemoryRepository {
 	return &InMemoryRepository{
-		data:  make(map[uuid.UUID]model.Poster),
+		data: make(map[uuid.UUID]model.Poster),
 	}
 }

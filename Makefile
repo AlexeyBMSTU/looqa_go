@@ -12,3 +12,12 @@ up:
 
 down:
 	docker compose down
+
+# Ручной прогон линтеров (то же, что делает pre-commit)
+lint:
+	go vet ./...
+	golangci-lint run
+
+# Автоформатирование (gofmt из .golangci.yml)
+fmt:
+	golangci-lint fmt

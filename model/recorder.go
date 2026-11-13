@@ -6,12 +6,12 @@ import (
 
 type StatusRecorder struct {
 	http.ResponseWriter
-	Status int
+	Status  int
 	Message string
 }
 
 func (t *StatusRecorder) Write(byte []byte) (int, error) {
-    t.Message = string(byte)
+	t.Message = string(byte)
 	return t.ResponseWriter.Write(byte)
 }
 

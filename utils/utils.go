@@ -11,7 +11,6 @@ func GetRequestID(r *http.Request) string {
 	return r.Context().Value(model.RequestIDKey).(string)
 }
 
-
 func RespondJSON(w http.ResponseWriter, body any, code int) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(code)

@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 func (t *InMemoryRepository) GetPosterAll() ([]model.Poster, error) {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()

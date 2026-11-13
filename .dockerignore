@@ -10,6 +10,8 @@
 **/.env
 **/.git
 **/.gitignore
+**/.githooks
+**/.golangci.yml
 **/.project
 **/.settings
 **/.toolstarget

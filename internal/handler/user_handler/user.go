@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 type Service interface {
 	GetUserAll() ([]model.User, error)
 	GetUserByID(id uuid.UUID) (model.User, error)

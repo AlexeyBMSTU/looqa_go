@@ -42,6 +42,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    ports:
+      - "${PORT_DATA_BASE}:${PORT_DATA_BASE}"
 
 volumes:
   pgdata:

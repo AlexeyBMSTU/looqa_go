@@ -44,7 +44,6 @@ func LoadConfigCommentService() Config {
 	}
 }
 
-
 func LoadConfigPosterService() Config {
 	port := getEnv("PORT_POSTER_SERVICE", DEFAULT_PORT_POSTER_SERVICE)
 	levelStr := getEnv("LEVEL_INFO_POSTER_SERVICE", DEFAULT_LEVEL_INFO_POSTER_SERVICE)
@@ -54,7 +53,6 @@ func LoadConfigPosterService() Config {
 		LevelInfo: parseLevel(levelStr),
 	}
 }
-
 
 func LoadConfigUserService() Config {
 	port := getEnv("PORT_USER_SERVICE", DEFAULT_PORT_USER_SERVICE)

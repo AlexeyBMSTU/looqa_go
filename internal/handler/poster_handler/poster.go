@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 type Service interface {
 	GetPosterAll() ([]model.Poster, error)
 	GetPosterByID(id uuid.UUID) (model.Poster, error)
