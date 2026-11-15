@@ -48,6 +48,6 @@ func (t *InMemoryRepository) GetMessages(ctx context.Context, cred model.Credent
 	if _, ok := t.data[cred.Key]; !ok {
 		return nil, model.ErrNotFound
 	}
-	
+
 	return t.data[cred.Key].GetMessages(ctx), nil
 }

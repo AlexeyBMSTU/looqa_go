@@ -24,4 +24,3 @@ func (s *Service) ClearMessages(ctx context.Context, cred model.CredentialAIData
 func (s *Service) GetMessages(ctx context.Context, cred model.CredentialAIData) ([]bridge.RoleSchema, error) {
 	return s.repo.GetMessages(ctx, cred)
 }
-

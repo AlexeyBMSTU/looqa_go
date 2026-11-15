@@ -12,7 +12,7 @@ info:
     | user | `http://localhost:8081` | пользователи |
     | poster | `http://localhost:8082` | посты |
     | auth | `http://localhost:8084` | регистрация, вход, токены-сессии |
-    | bridge | `http://localhost:8084` | прокси к LLM (ai-bridge) |
+    | bridge | `http://localhost:8085` | прокси к LLM (ai-bridge) |
 
     Порты по умолчанию, настраиваются в `.env` (`PORT_COMMENT_SERVICE`,
     `PORT_USER_SERVICE`, `PORT_POSTER_SERVICE`, `PORT_AUTH_SERVICE`,
@@ -59,7 +59,7 @@ tags:
   - name: auth
     description: Регистрация, вход, JWT-токены и JWKS (порт 8084)
   - name: bridge
-    description: Прокси к LLM через ai-bridge (порт 8084)
+    description: Прокси к LLM через ai-bridge (порт 8085)
 
 paths:
   # ----------------------------------------------------------------- comment
@@ -565,7 +565,7 @@ paths:
   # ------------------------------------------------------------------ bridge
   /message:
     servers:
-      - url: http://localhost:8084
+      - url: http://localhost:8085
     post:
       tags: [bridge]
       operationId: postMessage

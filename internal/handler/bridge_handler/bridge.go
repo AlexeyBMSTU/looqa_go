@@ -71,9 +71,9 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			utils.RespondJSON(w, []any{}, http.StatusOK)
-			return 
+			return
 		}
-		
+
 		slog.Error("clear message error", "msg", err, "requestID", utils.GetRequestID(r))
 		utils.RespondErrorJSON(w, "internal server error", http.StatusInternalServerError)
 		return
@@ -100,7 +100,7 @@ func (h *Handler) ClearMessages(w http.ResponseWriter, r *http.Request) {
 		slog.Error("clear message error", "msg", err, "requestID", utils.GetRequestID(r))
 		if errors.Is(err, model.ErrNotFound) {
 			utils.RespondErrorJSON(w, "messages doesn't exists", http.StatusBadRequest)
-			return 
+			return
 		}
 		utils.RespondErrorJSON(w, "internal server error", http.StatusInternalServerError)
 		return
