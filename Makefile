@@ -7,6 +7,12 @@ run-poster:
 run-user:
 	go run ./cmd/user
 
+run-auth:
+	go run ./cmd/auth
+
+run-bridge:
+	go run ./cmd/bridge
+
 up:
 	docker compose up --build
 

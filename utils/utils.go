@@ -5,10 +5,14 @@ import (
 	"log/slog"
 	"looqa/model"
 	"net/http"
+	"os"
 )
 
 func GetRequestID(r *http.Request) string {
-	return r.Context().Value(model.RequestIDKey).(string)
+	if id, ok := r.Context().Value(model.RequestIDKey).(string); ok {
+		return id
+	}
+	return ""
 }
 
 func RespondJSON(w http.ResponseWriter, body any, code int) {
@@ -26,4 +30,11 @@ func RespondErrorJSON(w http.ResponseWriter, message string, code int) {
 	if encErr := json.NewEncoder(w).Encode(err); encErr != nil {
 		slog.Error("encode error response error", "msg", encErr)
 	}
+}
+
+func Getenv(name, def string) string {
+	if v := os.Getenv(name); v != "" {
+		return v
+	}
+	return def
 }

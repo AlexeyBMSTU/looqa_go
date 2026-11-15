@@ -8,14 +8,16 @@ services:
       - .env
     environment:
       # Внутри сети compose база доступна как db:5432.
-      # Локально (make run-*) переменная не задана — сервис работает
-      # на in-memory хранилище.
       DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      # Публичные ключи auth-сервиса — для локальной проверки JWT.
+      AUTH_JWKS_URL: http://auth:${PORT_AUTH_SERVICE}/jwks
     ports:
       - "${PORT_COMMENT_SERVICE}:${PORT_COMMENT_SERVICE}"
     depends_on:
       db:
         condition: service_healthy
+      auth:
+        condition: service_started
 
   poster:
     build:
@@ -26,11 +28,14 @@ services:
       - .env
     environment:
       DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      AUTH_JWKS_URL: http://auth:${PORT_AUTH_SERVICE}/jwks
     ports:
       - "${PORT_POSTER_SERVICE}:${PORT_POSTER_SERVICE}"
     depends_on:
       db:
         condition: service_healthy
+      auth:
+        condition: service_started
 
   user:
     build:
@@ -41,10 +46,46 @@ services:
       - .env
     environment:
       DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      AUTH_JWKS_URL: http://auth:${PORT_AUTH_SERVICE}/jwks
     ports:
       - "${PORT_USER_SERVICE}:${PORT_USER_SERVICE}"
     depends_on:
       db:
+        condition: service_healthy
+      auth:
+        condition: service_started
+
+  bridge:
+    build:
+      context: .
+      args:
+        SERVICE: bridge
+    env_file:
+      - .env
+    environment:
+      AUTH_JWKS_URL: http://auth:${PORT_AUTH_SERVICE}/jwks
+    ports:
+      - "${PORT_BRIDGE_SERVICE}:${PORT_BRIDGE_SERVICE}"
+    depends_on:
+      auth:
+        condition: service_started
+
+  auth:
+    build:
+      context: .
+      args:
+        SERVICE: auth
+    env_file:
+      - .env
+    environment:
+      DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      MONGO_URI: mongodb://mongo:27017
+    ports:
+      - "${PORT_AUTH_SERVICE}:${PORT_AUTH_SERVICE}"
+    depends_on:
+      db:
+        condition: service_healthy
+      mongo:
         condition: service_healthy
 
   swagger:
@@ -83,6 +124,21 @@ services:
     depends_on:
       - db
 
+  # MongoDB — хранилище токенов аутентификации (база looqa, коллекция tokens).
+  # Истёкшие токены удаляются автоматически TTL-индексом по expires_at.
+  mongo:
+    image: mongo:8
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "${PORT_MONGO}:27017"
+
 volumes:
   pgdata:
   pgadmin_data:
+  mongodata:

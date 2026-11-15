@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"looqa/cmd/server/middleware"
+	"looqa/internal/auth"
 	"looqa/internal/config"
 	userhandler "looqa/internal/handler/user_handler"
 	userrepository "looqa/internal/repository/user_repository"
@@ -30,7 +31,9 @@ func StartUserService(ctx context.Context) error {
 	mux := http.NewServeMux()
 	h.RegisterRoutes(mux)
 
-	muxer := middleware.MiddlewareSetRequestID(middleware.MiddlewareLogger(middleware.MiddlewarePanicRecover(mux)))
+	muxer := middleware.MiddlewareSetRequestID(middleware.MiddlewareLogger(middleware.MiddlewarePanicRecover(
+		middleware.MiddlewareAuth(auth.NewJWKSVerifier(cfg.JWKSUrl))(mux),
+	)))
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),

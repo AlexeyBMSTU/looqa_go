@@ -14,11 +14,10 @@ func MiddlewarePanicRecover(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				requestID := r.Context().Value(model.RequestIDKey).(string)
 				slog.Error("panic detected",
 					"error", rec,
 					"path", r.URL.Path,
-					"requestID", requestID,
+					"requestID", utils.GetRequestID(r),
 				)
 				utils.RespondErrorJSON(w, "internal server error", http.StatusInternalServerError)
 			}
